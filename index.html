@@ -1,0 +1,197 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>ジェイズの記事</title><meta name="author" content="Jay"><meta name="copyright" content="Jay"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Ethical Hacker | CTF Player">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ジェイズの記事">
+<meta property="og:url" content="http://localhost/index.html">
+<meta property="og:site_name" content="ジェイズの記事">
+<meta property="og:description" content="Ethical Hacker | CTF Player">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://localhost/img/butterfly-icon.png">
+<meta property="article:author" content="Jay">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://localhost/img/butterfly-icon.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://localhost/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'ジェイズの記事',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'home'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="page" id="body-wrap"><header class="full_page" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">ジェイズの記事</span></a></span><div id="menus"></div></nav><div id="site-info"><h1 id="site-title">ジェイズの記事</h1></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts nc" id="recent-posts"><div class="recent-post-items"><div class="recent-post-item"><div class="post_cover left"><a href="/2025/03/28/Breach/" title="Breach (Windows Medium)"><img class="post-bg" src="/img/breach/breach.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Breach (Windows Medium)"></a></div><div class="recent-post-info"><a class="article-title" href="/2025/03/28/Breach/" title="Breach (Windows Medium)">Breach (Windows Medium)</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2025-03-28T16:42:53.000Z" title="Created 2025-03-28 11:42:53">2025-03-28</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/vl/">vl</a></span></div><div class="content">Breach is a Windows Medium box that starts with Guest auth to shares. Having read&#x2F;write to one share, we upload a lnk file and receive and user hash. This has is used to kerberoast SPNs which gets a hash for svc_mssql user. As we have a Service Account, we can create a silver ticket. After creation, we connect as Administrator and can run commands via xp_cmdshell. Only after bypassing AMSI do you get a reverse shell. Once on the machine, checking our privileges we have SeImpersonate...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2025/03/14/Cypher/" title="Cypher (Linux Medium)"><img class="post-bg" src="/img/cypher/cypher.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cypher (Linux Medium)"></a></div><div class="recent-post-info"><a class="article-title" href="/2025/03/14/Cypher/" title="Cypher (Linux Medium)">Cypher (Linux Medium)</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2025-03-14T15:13:45.000Z" title="Created 2025-03-14 10:13:45">2025-03-14</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/htb/">htb</a></span></div><div class="content">Cypher is a Linux Medium box that starts with a website hosting a .jar file. Once downloaded and decompiled you find amoungst them a CustomFunctions.class java file. Using jd-gui we are able to look at the source code of the file. The code reveals a attack vector inside a string that executes a system command. Using Cypher Injection we are able to obtain a reverse shell that gets us on the box as neo4j. Once on the box we look around to find a .yml file containing credentials. Trying with...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2025/03/05/Cascade/" title="Cascade (Windows Medium)"><img class="post-bg" src="/img/cascade/cascade.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cascade (Windows Medium)"></a></div><div class="recent-post-info"><a class="article-title" href="/2025/03/05/Cascade/" title="Cascade (Windows Medium)">Cascade (Windows Medium)</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2025-03-05T20:03:31.000Z" title="Created 2025-03-05 14:03:31">2025-03-05</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/htb/">htb</a></span></div><div class="content">Cascade is a medium difficulty Windows machine configured as a Domain Controller. LDAP anonymous binds are enabled, and enumeration yields the password for user r.thompson, which gives access to a TightVNC registry backup. The backup is decrypted to gain the password for s.smith. This user has access to a .NET executable, which after decompilation and source code analysis reveals the password for the ArkSvc account. This account belongs to the AD Recycle Bin group, and is able to view...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2025/02/24/blackfield/" title="Blackfield (Windows Hard)"><img class="post-bg" src="/img/blackfield/blackfield.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Blackfield (Windows Hard)"></a></div><div class="recent-post-info"><a class="article-title" href="/2025/02/24/blackfield/" title="Blackfield (Windows Hard)">Blackfield (Windows Hard)</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2025-02-24T18:28:33.000Z" title="Created 2025-02-24 12:28:33">2025-02-24</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/htb/">htb</a></span></div><div class="content">Backfield is a hard difficulty Windows machine featuring Windows and Active Directory misconfigurations. Anonymous &#x2F; Guest access to an SMB share is used to enumerate users. Once user is found to have Kerberos pre-authentication disabled, which allows us to conduct an ASREPRoasting attack. This allows us to retrieve a hash of the encrypted material contained in the AS-REP, which can be subjected to an offline brute force attack in order to recover the plaintext password. With this user...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2024/12/21/Data/" title="Data (Linux Easy)"><img class="post-bg" src="/img/data/data_slide.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Data (Linux Easy)"></a></div><div class="recent-post-info"><a class="article-title" href="/2024/12/21/Data/" title="Data (Linux Easy)">Data (Linux Easy)</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2024-12-22T04:57:20.000Z" title="Created 2024-12-21 22:57:20">2024-12-21</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/vl/">vl</a></span></div><div class="content">Data starts out with Grafana being ran on port 3000. We are able to use Unauthorized Arbitrary File Read Vulnerability (CVE-2021-43798) and exfil grafana.ini and grafana.db. Having these we can use a python script to convert this data and hashes to sha256 for hashcat. This gets us on the box as boris. Looking at his privileges we can execute docker exec. To get root privileges on the docker container we can run sudo /snap/bin/docker exec --privileged -u 0 -it grafana /bin/bash. From here we...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2024/12/04/Slonik/" title="Slonik (Linux Medium)"><img class="post-bg" src="/img/slonik/slonik_slide.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Slonik (Linux Medium)"></a></div><div class="recent-post-info"><a class="article-title" href="/2024/12/04/Slonik/" title="Slonik (Linux Medium)">Slonik (Linux Medium)</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2024-12-05T04:22:40.000Z" title="Created 2024-12-04 22:22:40">2024-12-04</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/vl/">vl</a></span></div><div class="content">Slonik is a linux box created around reusing a socket and the ability to port forward them. It starts with a box running NFS, and using showmount our able to see two. There is /var/backups, and /home. Home was interesting, with there being a .bash_history and a .psql_history to see that we have commands previously ran. Using rpcinfo you can see we have sockets being used. From the information we have we can create a directory /tmp/sock and us it and the ending pid in the .bash_history. Using...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2024/11/07/Retro/" title="Retro (Windows Easy)"><img class="post-bg" src="/img/retro/retro_slide.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Retro (Windows Easy)"></a></div><div class="recent-post-info"><a class="article-title" href="/2024/11/07/Retro/" title="Retro (Windows Easy)">Retro (Windows Easy)</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2024-11-07T16:00:00.000Z" title="Created 2024-11-07 10:00:00">2024-11-07</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/vl/">vl</a></span></div><div class="content">Retro is a box working around pre-created windows 2000 machines. Pre-creating a computer means adding a computer to AD without using it to join a host to the domain right away, it just gets used later. There is a “Pre-Windows 2000” compatibility option that can be selected when creating a computer from ADUC, still present in Windows Server 2022. A computer created with this option will have a password equal to the computers name in lowercase without the ‘$’. This allows you to look at ADCS...</div></div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Jay</div><div class="author-info-description">Ethical Hacker | CTF Player</div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">7</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">27</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/03/28/Breach/" title="Breach (Windows Medium)"><img src="/img/breach/breach.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Breach (Windows Medium)"/></a><div class="content"><a class="title" href="/2025/03/28/Breach/" title="Breach (Windows Medium)">Breach (Windows Medium)</a><time datetime="2025-03-28T16:42:53.000Z" title="Created 2025-03-28 11:42:53">2025-03-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/03/14/Cypher/" title="Cypher (Linux Medium)"><img src="/img/cypher/cypher.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cypher (Linux Medium)"/></a><div class="content"><a class="title" href="/2025/03/14/Cypher/" title="Cypher (Linux Medium)">Cypher (Linux Medium)</a><time datetime="2025-03-14T15:13:45.000Z" title="Created 2025-03-14 10:13:45">2025-03-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/03/05/Cascade/" title="Cascade (Windows Medium)"><img src="/img/cascade/cascade.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cascade (Windows Medium)"/></a><div class="content"><a class="title" href="/2025/03/05/Cascade/" title="Cascade (Windows Medium)">Cascade (Windows Medium)</a><time datetime="2025-03-05T20:03:31.000Z" title="Created 2025-03-05 14:03:31">2025-03-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/02/24/blackfield/" title="Blackfield (Windows Hard)"><img src="/img/blackfield/blackfield.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Blackfield (Windows Hard)"/></a><div class="content"><a class="title" href="/2025/02/24/blackfield/" title="Blackfield (Windows Hard)">Blackfield (Windows Hard)</a><time datetime="2025-02-24T18:28:33.000Z" title="Created 2025-02-24 12:28:33">2025-02-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/12/21/Data/" title="Data (Linux Easy)"><img src="/img/data/data_slide.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Data (Linux Easy)"/></a><div class="content"><a class="title" href="/2024/12/21/Data/" title="Data (Linux Easy)">Data (Linux Easy)</a><time datetime="2024-12-22T04:57:20.000Z" title="Created 2024-12-21 22:57:20">2024-12-21</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>Categories</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/htb/"><span class="card-category-list-name">htb</span><span class="card-category-list-count">3</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/vl/"><span class="card-category-list-name">vl</span><span class="card-category-list-count">4</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>Tags</span></div><div class="card-tag-cloud"><a href="/tags/neo4j/" style="font-size: 1.1em; color: #999">neo4j</a> <a href="/tags/ntlm-theft/" style="font-size: 1.1em; color: #999">ntlm theft</a> <a href="/tags/Docker-Privileged-Containers/" style="font-size: 1.1em; color: #999">Docker Privileged Containers</a> <a href="/tags/Registry/" style="font-size: 1.1em; color: #999">Registry</a> <a href="/tags/Source-Code-Analysis/" style="font-size: 1.1em; color: #999">Source Code Analysis</a> <a href="/tags/LDAP/" style="font-size: 1.1em; color: #999">LDAP</a> <a href="/tags/ASREPRoasting/" style="font-size: 1.1em; color: #999">ASREPRoasting</a> <a href="/tags/PostgreSQL-RCE/" style="font-size: 1.1em; color: #999">PostgreSQL RCE</a> <a href="/tags/Cypher-Injection/" style="font-size: 1.1em; color: #999">Cypher Injection</a> <a href="/tags/NET/" style="font-size: 1.1em; color: #999">.NET</a> <a href="/tags/amsi-bypass/" style="font-size: 1.1em; color: #999">amsi-bypass</a> <a href="/tags/github-custom-scanners/" style="font-size: 1.1em; color: #999">github custom scanners</a> <a href="/tags/BackupOperators/" style="font-size: 1.1em; color: #999">BackupOperators</a> <a href="/tags/Hashcat/" style="font-size: 1.1em; color: #999">Hashcat</a> <a href="/tags/SUID-HiJacking/" style="font-size: 1.1em; color: #999">SUID HiJacking</a> <a href="/tags/silver-ticket/" style="font-size: 1.1em; color: #999">silver ticket</a> <a href="/tags/ADCS/" style="font-size: 1.1em; color: #999">ADCS</a> <a href="/tags/bash-SUID-File-Copy/" style="font-size: 1.1em; color: #999">bash SUID File Copy</a> <a href="/tags/AD-Recycle-Bin-Group/" style="font-size: 1.1em; color: #999">AD Recycle Bin Group</a> <a href="/tags/SMB/" style="font-size: 1.5em; color: #99a9bf">SMB</a> <a href="/tags/mssql/" style="font-size: 1.1em; color: #999">mssql</a> <a href="/tags/pypykatz/" style="font-size: 1.1em; color: #999">pypykatz</a> <a href="/tags/NFS/" style="font-size: 1.1em; color: #999">NFS</a> <a href="/tags/Grafana/" style="font-size: 1.1em; color: #999">Grafana</a> <a href="/tags/java-decompiler/" style="font-size: 1.1em; color: #999">java decompiler</a> <a href="/tags/kerberoasting-SPNs/" style="font-size: 1.1em; color: #999">kerberoasting SPNs</a> <a href="/tags/Pre-Windows-2000/" style="font-size: 1.1em; color: #999">Pre-Windows 2000</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>Archives</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/03/">
+            <span class="card-archive-list-date">
+              March 2025
+            </span>
+            <span class="card-archive-list-count">3</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/02/">
+            <span class="card-archive-list-date">
+              February 2025
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/12/">
+            <span class="card-archive-list-date">
+              December 2024
+            </span>
+            <span class="card-archive-list-count">2</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/11/">
+            <span class="card-archive-list-date">
+              November 2024
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>Website Info</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">Article Count :</div><div class="item-count">7</div></div><div class="webinfo-item"><div class="item-name">Unique Visitors :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">Page Views :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">Last Update :</div><div class="item-count" id="last-push-date" data-lastPushDate="2025-03-29T18:08:54.920Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By Jay</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
