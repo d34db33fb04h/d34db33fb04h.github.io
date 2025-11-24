@@ -1292,5 +1292,11 @@ msf exploit(windows/local/cve_2024_35250_ks_driver) &gt; run[*] Started reverse 
       <categories>
         <category>hacksmarter</category>
       </categories>
+      <tags>
+        <tag>SMB</tag>
+        <tag>GenericAll</tag>
+        <tag>ntlmtheft</tag>
+        <tag>Windows Kernel LPE</tag>
+      </tags>
   </entry>
 </search>
